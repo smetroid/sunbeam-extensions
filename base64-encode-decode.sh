@@ -10,12 +10,12 @@ if [ $# -eq 0 ]; then
             {
                 name: "base64-encode",
                 title: "Encode clipboard item",
-                mode: "tty"
+                mode: "detail"
             },
             {
                 name: "base64-decode",
                 title: "Decode clipboard item",
-                mode: "tty"
+                mode: "detail"
             }
         ]
     }'
@@ -25,9 +25,26 @@ fi
 ITEM=`sunbeam paste`
 COMMAND=$(echo "$1" | jq -r '.command')
 if [ "$COMMAND" = "base64-encode" ]; then
-    echo $ITEM | base64 | sunbeam copy
+    encode=$(echo $ITEM | base64)
+    jq -n --arg encode "$encode" '{
+        text: "Base64 Encoding!",
+        actions: [{
+            title: "Copy to clipboard",
+            type: "copy",
+            text: $encode,
+            exit: true,
+        }],
+    }'
 elif [ "$COMMAND" = "base64-decode" ]; then
-    echo $ITEM | base64 -d | sunbeam copy
+    decode=$(echo $ITEM | base64 -d)
+    jq -n --arg decode "$decode" '{
+        "text": "Base64 Decoding",
+        "actions": [{
+            title: "Copy to clipboard",
+            type: "copy",
+            text: $decode,
+            exit: true,
+        }],
+    }'
 fi
-
 
