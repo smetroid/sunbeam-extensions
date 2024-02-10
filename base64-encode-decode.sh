@@ -27,7 +27,7 @@ COMMAND=$(echo "$1" | jq -r '.command')
 if [ "$COMMAND" = "base64-encode" ]; then
     encode=$(echo $ITEM | base64)
     jq -n --arg encode "$encode" '{
-        text: "Base64 Encoding!",
+        text: $encode,
         actions: [{
             title: "Copy to clipboard",
             type: "copy",
@@ -38,7 +38,7 @@ if [ "$COMMAND" = "base64-encode" ]; then
 elif [ "$COMMAND" = "base64-decode" ]; then
     decode=$(echo $ITEM | base64 -d)
     jq -n --arg decode "$decode" '{
-        "text": "Base64 Decoding",
+        "text": $decode,
         "actions": [{
             title: "Copy to clipboard",
             type: "copy",
