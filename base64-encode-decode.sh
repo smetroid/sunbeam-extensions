@@ -4,20 +4,20 @@ set -eu
 
 if [ $# -eq 0 ]; then
     jq -n '{
-        title: "Base64 ",
+        title: "Base64",
         description: "Encode or decode base64 clipboard item",
         commands: [
             {
                 name: "base64-encode",
                 title: "Encode clipboard item",
-                mode: "detail"
+                mode: "detail",
             },
             {
                 name: "base64-decode",
                 title: "Decode clipboard item",
-                mode: "detail"
+                mode: "detail",
             }
-        ]
+        ],
     }'
     exit 0
 fi
