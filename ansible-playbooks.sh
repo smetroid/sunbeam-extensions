@@ -56,7 +56,7 @@ if [ "$COMMAND" = "run-ansible" ]; then
 
     if [ $ROLE = "all" ]; then
         ansible-playbook -i inventories/localhost/localhost playbook/site.yml -e OS="$OS"
-    else
+    elif [ -z "$ROLE" ]  && [ -z "$OS" ]; then
         ansible-playbook -i inventories/localhost/localhost playbook/site.yml -t $ROLE -e OS="$OS"
     fi
 fi
