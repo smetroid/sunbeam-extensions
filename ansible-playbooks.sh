@@ -26,7 +26,7 @@ if [ $# -eq 0 ]; then
 fi
 
 COMMAND=$(echo "$1" | jq -r '.command')
-# to be retrieved from the values playbook
+# TODO be retrieved from the values playbook
 OPTIONS='["linux-all","macos-all","linux-tools","macos-tools","linux-common","macos-common"]'
 
 if [ "$COMMAND" = "ansible-options" ]; then
@@ -42,7 +42,8 @@ if [ "$COMMAND" = "ansible-options" ]; then
                         "params": {
                             "os": . | split("-")[0],
                             role: . | split("-")[1],
-                        }
+                        },
+                        reload: false
                     }
                 ]
             })
@@ -55,9 +56,11 @@ if [ "$COMMAND" = "run-ansible" ]; then
     ROLE=$(echo "$1" | jq -r '.params.role')
 
     if [ $ROLE = "all" ]; then
-        ansible-playbook -i inventories/localhost/localhost playbook/site.yml -e OS="$OS"
-    elif [ -z "$ROLE" ]  && [ -z "$OS" ]; then
-        ansible-playbook -i inventories/localhost/localhost playbook/site.yml -t $ROLE -e OS="$OS"
+        ansible-playbook -i inventories/localhost/local playbook/site.yml -e --become OS="$OS"
+    elif [ $ROLE = "common" ]; then
+        ansible-playbook -i inventories/localhost/local playbook/site.yml --become -t $ROLE -e OS="$OS"
+    elif [ -n "$ROLE" ] && [ -n "$OS" ]; then
+        ansible-playbook -i inventories/localhost/local playbook/site.yml -t $ROLE -e OS="$OS"
     fi
 fi
 
