@@ -67,21 +67,23 @@ if [ "$COMMAND" = "memo-cmds" ]; then
   echo "$MEMOS" | jq '{
         "items": map({
             "title": .cmd,
-            "subtitle": .tags,
+            #"subtitle": .tags,
+            "accessories": [.tags],
             "actions": [{
                 "type": "run",
-                "title": "Run cmd ",
+                "title": "Run Command",
                 "command": "run-command",
                 "params": {
-                    "exec": .cmd,
+                    "codeblock": .cmd,
                 }
                 },{
-                  "type": "run",
-                  "title": "view cmd ",
-                  "command": "view-command",
-                  "params": {
-                      "exec": .cmd,
-                  },
+                "type": "run",
+                "title": "View Command",
+                "command": "view-command",
+                "params": {
+                    "content": .content,
+                    "codeblock": .cmd,
+                },
             }]
         }),
         "actions": [{
@@ -100,7 +102,8 @@ if [ "$COMMAND" = "memo-snippets" ]; then
   echo "$MEMOS" | jq '{
         "items": map({
             "title": .content,
-            "subtitle": .tags,
+            #"subtitle": .tags,
+            "accessories": [.tags],
             "actions": [{
                 "type": "run",
                 "title": "view cmd ",
@@ -151,7 +154,7 @@ fi
 
 
 if [ "$COMMAND" = "run-command" ]; then
-  CMD=$(echo "$1"| jq -r '.params.exec')
+  CMD=$(echo "$1"| jq -r '.params.codeblock')
   konsole -e bash -c "$CMD; exec bash"
 elif [ "$COMMAND" = "view-command" ]; then
     content=$(echo "$1"| jq -r '.params.content')
