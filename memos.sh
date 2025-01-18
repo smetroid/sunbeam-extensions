@@ -33,7 +33,7 @@ if [ $# -eq 0 ]; then
                 mode: "filter"
             },
             {
-                name: "memos",
+                name: "memo-all",
                 title: "ALL memos",
                 mode: "filter"
             },
@@ -99,15 +99,45 @@ if [ "$COMMAND" = "memo-snippets" ]; then
   #~/projects/goscripts/get-memos | tee ./debug_output.json | jq '{
   echo "$MEMOS" | jq '{
         "items": map({
-            "title": .cmd,
+            "title": .content,
             "subtitle": .tags,
             "actions": [{
-                  "type": "run",
-                  "title": "view cmd ",
-                  "command": "view-command",
-                  "params": {
-                      "exec": .cmd,
-                  },
+                "type": "run",
+                "title": "view cmd ",
+                "command": "view-command",
+                "params": {
+                    "content": .content,
+                    "codeblock": .cmd,
+                },
+            }]
+        }),
+        "actions": [{
+          "title": "Refresh items",
+          "type": "reload",
+          "exit": "true"
+      }]
+  }'
+  exit 0
+fi
+
+
+if [ "$COMMAND" = "memo-all" ]; then
+  MEMOS=$(~/projects/goscripts/memo/get-memos)
+  # it seems to fail because get-memos is not fast enough
+  #~/projects/goscripts/get-memos | tee ./debug_output.json | jq '{
+  echo "$MEMOS" | jq '{
+        "items": map({
+            "title": .content,
+            "subtitle": .cmd,
+            "accessories": [.tags],
+            "actions": [{
+                "type": "run",
+                "title": "view cmd ",
+                "command": "view-command",
+                "params": {
+                    "content": .content,
+                    "codeblock": .cmd,
+                },
             }]
         }),
         "actions": [{
@@ -124,13 +154,14 @@ if [ "$COMMAND" = "run-command" ]; then
   CMD=$(echo "$1"| jq -r '.params.exec')
   konsole -e bash -c "$CMD; exec bash"
 elif [ "$COMMAND" = "view-command" ]; then
-    cmd=$(echo "$1"| jq -r '.params.exec')
-    jq -n --arg cmd "$cmd" '{
-        "text": $cmd,
+    content=$(echo "$1"| jq -r '.params.content')
+    codeblock=$(echo "$1"| jq -r '.params.codeblock')
+    jq -n --arg content "$content" --arg codeblock "$codeblock" '{
+        "markdown": $content,
         "actions": [{
-            title: "Copy to clipboard",
+            title: "Copy code block to clipboard",
+            text: $codeblock,
             type: "copy",
-            text: $cmd,
             exit: false,
         }],
     }'
